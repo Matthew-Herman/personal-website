@@ -55,12 +55,7 @@ function UserMissile(x, y) {
 		stroke(color(0, 0, 0));
 		
 		//Detect collision of xPos and yPos with xTarget and yTarget 
-// 		if ((this.xPos > this.xTarget-2 && this.xPos < this.xTarget+2) && (this.yPos > this.yTarget-2 && this.yPos < this.yTarget+2)) {
-// 			var index = arrFiredMissiles.indexOf(this);
-// 			arrFiredMissiles.splice(index, 1);
-// 			arrExplosions.push(new Explosion(this.xPos, this.yPos));
-// 		}
-		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget)) {
+		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget, 10)) {
 			var index = arrFiredMissiles.indexOf(this);
 			arrFiredMissiles.splice(index, 1);
 			arrExplosions.push(new Explosion(this.xPos, this.yPos));
@@ -79,12 +74,20 @@ function Explosion(x, y) {
 	this.size = 1;
 	
 	this.display = function() {
-		this.size += 1;
+		this.size += 5;
 		if (this.size > 80) {
 			var index = arrExplosions.indexOf(this);
 			arrExplosions.splice(index, 1);
 		}
 		ellipse(x, y, this.size, this.size);
+	}
+	
+	//Detects collision between Explosion and EnemyMissile
+	this.collide = function(enemyMissile) {
+		if (collidePointCircle(enemyMissile.xPos, enemyMissile.yPos, this.xPos, this.yPos, this.size)) {
+			var index = arrEnemyMissiles.indexOf(enemyMissile);
+			arrEnemyMissiles.splice(index, 1);
+		}
 	}
 }
 
@@ -115,7 +118,7 @@ function setup() {
 		arrEnemyMissiles.push(new EnemyMissile(random(50, 751), 0));
 	}
 	for (i = 0; i < 10; i++) {
-		arrUserMissiles.push(new UserMissile(400, 500));
+		arrUserMissiles.push(new UserMissile(400, 590));
 	}
 	cursor = new Cursor(400, 300);
 }
@@ -137,6 +140,11 @@ function draw() {
 	for (i = 0; i < arrExplosions.length; i++) {
 		arrExplosions[i].display();
 	}
+	for (i = 0; i < arrExplosions.length; i++) {
+		for (j = 0; j< arrEnemyMissiles.length; j++) {
+			arrExplosions[i].collide(arrEnemyMissiles[j]);
+		}
+	}
 	cursor.display();
 }
 
@@ -152,37 +160,17 @@ function keyPressed() {
 
 //This function is checked every call of draw() for holding keypresses
 function checkKey() {
+	const cursorSpeed = 8;
 	if (keyIsDown(LEFT_ARROW)) {
-	  cursor.xPos -= 5;
+	  cursor.xPos -= cursorSpeed;
 	}
 	if (keyIsDown(RIGHT_ARROW)) {
-	  cursor.xPos += 5;
+	  cursor.xPos += cursorSpeed;
 	}
 	if (keyIsDown(UP_ARROW)) {
-	  cursor.yPos -= 5;
+	  cursor.yPos -= cursorSpeed;
 	}
 	if (keyIsDown(DOWN_ARROW)) {
-	  cursor.yPos += 5;
+	  cursor.yPos += cursorSpeed;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
