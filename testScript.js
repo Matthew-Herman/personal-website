@@ -1,10 +1,14 @@
-//Define object constructors here
+//Define constant variables here
+const width = 800;
+const height = 600;
+
+//Define custom object constructors here
 function EnemyMissile(x, y) {
 	this.xStart = x;
 	this.yStart = y;
 	this.xPos = x;
 	this.yPos = y;
-	this.xTarget = random(50, 751);
+	this.xTarget = random(50, width-49);
 	this.yTarget = 600;
 	this.ySpeed = random(0.5, 1);
 	this.xSpeed = (this.ySpeed/this.yTarget)*(this.xTarget-this.xStart);
@@ -45,16 +49,42 @@ function UserMissile(x, y) {
 		point(this.xPos, this.yPos);
 		stroke(color(0, 0, 255));
 		line(this.xStart, this.yStart, this.xPos, this.yPos);
+		stroke(color(255, 255, 255));	
+		line(this.xTarget-5, this.yTarget-5, this.xTarget+5, this.yTarget+5);
+		line(this.xTarget+5, this.yTarget-5, this.xTarget-5, this.yTarget+5);
 		stroke(color(0, 0, 0));
-		if (this.xPos === this.xTarget && this.yPos === this.yTarget) {
+		
+		//Detect collision of UserMissile with xTarget and yTarget 
+		if ((this.xPos > this.xTarget-2 && this.xPos < this.xTarget+2) && (this.yPos > this.yTarget-2 && this.yPos < this.yTarget+2)) {
 			var index = arrFiredMissiles.indexOf(this);
 			arrFiredMissiles.splice(index, 1);
+			arrExplosions.push(new Explosion(this.xPos, this.yPos));
 		}
+// 		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget)) {
+// 			var index = arrFiredMissiles.indexOf(this);
+// 			arrFiredMissiles.splice(index, 1);
+// 			arrExplosions.push(new Explosion(this.xPos, this.yPos));
+// 		}
 	}
 	
 	this.move = function() {
 		this.yPos += this.ySpeed;
 		this.xPos += this.xSpeed;
+	}
+}
+
+function Explosion(x, y) {
+	this.xPos = x;
+	this.yPos = y;
+	this.size = 1;
+	
+	this.display = function() {
+		this.size += 1;
+		if (this.size > 80) {
+			var index = arrExplosions.indexOf(this);
+			arrExplosions.splice(index, 1);
+		}
+		ellipse(x, y, this.size, this.size);
 	}
 }
 
@@ -74,11 +104,12 @@ function Cursor(x, y){
 var arrEnemyMissiles = [];
 var arrUserMissiles = [];
 var arrFiredMissiles = [];
+var arrExplosions = [];
 var cursor;
 
 //Setup
 function setup() {
-	var cnv = createCanvas(800,600);
+	var cnv = createCanvas(width, height);
   cnv.parent('justify-project');
   for (i = 0; i < 5; i++) {
 		arrEnemyMissiles.push(new EnemyMissile(random(50, 751), 0));
@@ -93,6 +124,8 @@ function setup() {
 function draw() {
 	checkKey();
 	background(0);
+	
+	//Draw EnemyMissiles, FiredMissiles
 	for (i = 0; i < arrEnemyMissiles.length; i++) {
 		arrEnemyMissiles[i].move();
 		arrEnemyMissiles[i].display();
@@ -100,6 +133,9 @@ function draw() {
 	for (i = 0; i < arrFiredMissiles.length; i++) {
 		arrFiredMissiles[i].move();
 		arrFiredMissiles[i].display();
+	}
+	for (i = 0; i < arrExplosions.length; i++) {
+		arrExplosions[i].display();
 	}
 	cursor.display();
 }
@@ -114,7 +150,7 @@ function keyPressed() {
 	}
 }
 
-//This function is checked every call of draw()
+//This function is checked every call of draw() for holding keypresses
 function checkKey() {
 	if (keyIsDown(LEFT_ARROW)) {
 	  cursor.xPos -= 5;
