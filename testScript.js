@@ -54,17 +54,17 @@ function UserMissile(x, y) {
 		line(this.xTarget+5, this.yTarget-5, this.xTarget-5, this.yTarget+5);
 		stroke(color(0, 0, 0));
 		
-		//Detect collision of UserMissile with xTarget and yTarget 
-		if ((this.xPos > this.xTarget-2 && this.xPos < this.xTarget+2) && (this.yPos > this.yTarget-2 && this.yPos < this.yTarget+2)) {
-			var index = arrFiredMissiles.indexOf(this);
-			arrFiredMissiles.splice(index, 1);
-			arrExplosions.push(new Explosion(this.xPos, this.yPos));
-		}
-// 		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget)) {
+		//Detect collision of xPos and yPos with xTarget and yTarget 
+// 		if ((this.xPos > this.xTarget-2 && this.xPos < this.xTarget+2) && (this.yPos > this.yTarget-2 && this.yPos < this.yTarget+2)) {
 // 			var index = arrFiredMissiles.indexOf(this);
 // 			arrFiredMissiles.splice(index, 1);
 // 			arrExplosions.push(new Explosion(this.xPos, this.yPos));
 // 		}
+		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget)) {
+			var index = arrFiredMissiles.indexOf(this);
+			arrFiredMissiles.splice(index, 1);
+			arrExplosions.push(new Explosion(this.xPos, this.yPos));
+		}
 	}
 	
 	this.move = function() {
@@ -165,3 +165,24 @@ function checkKey() {
 	  cursor.yPos += 5;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
