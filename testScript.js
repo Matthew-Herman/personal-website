@@ -45,8 +45,10 @@ function UserMissile(x, y) {
 	this.setTarget = function(xTar, yTar) {
 		this.xTarget = xTar;
 		this.yTarget = yTar;
-		this.ySpeed = -5;
-		this.xSpeed = -(this.ySpeed/(this.yStart-this.yTarget))*(this.xTarget-this.xStart);
+		this.speed = 5;
+		this.direction = Math.atan((this.xTarget-this.xStart)/(this.yTarget-this.yStart));
+		this.ySpeed = -this.speed*Math.cos(this.direction);
+		this.xSpeed = -this.speed*Math.sin(this.direction);
 	}
 	
 	this.displayMissile = function() {
