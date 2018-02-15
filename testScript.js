@@ -274,3 +274,24 @@ function checkKey() {
 	  cursor.yPos += cursorSpeed;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
