@@ -1,11 +1,20 @@
-//Define constant variables here
+//Declare/initialize global variables here
 const width = 800;
 const height = 600;
 const cursorSpeed = 12;
 
+const arrEnemyMissiles = [];
+const arrUserMissiles = [];
+const arrFiredMissiles = [];
+const arrExplosions = [];
+const arrBases = [];
+const arrMissileBatteries = [];
 
+let cursor;
+let map;
+let missileController;
 
-//Define custom object constructors here
+//Define object constructors here
 function EnemyMissile(x, y) 
 {
 	this.xStart = x;
@@ -35,6 +44,10 @@ function EnemyMissile(x, y)
 		this.yPos += this.ySpeed;
 		this.xPos += this.xSpeed;
 	}
+}
+
+function EnemyMissileController() {
+
 }
 
 function UserMissile(x, y) 
@@ -74,7 +87,7 @@ function UserMissile(x, y)
 		
 		//Detect collision of xPos and yPos with xTarget and yTarget 
 		if (collidePointPoint(this.xPos, this.yPos, this.xTarget, this.yTarget, 10)) {
-			var index = arrFiredMissiles.indexOf(this);
+			const index = arrFiredMissiles.indexOf(this);
 			arrFiredMissiles.splice(index, 1);
 			arrExplosions.push(new Explosion(this.xPos, this.yPos));
 		}
@@ -95,7 +108,7 @@ function Explosion(x, y)
 	this.display = function() {
 		this.size += 1;
 		if (this.size > 80) {
-			var index = arrExplosions.indexOf(this);
+			const index = arrExplosions.indexOf(this);
 			arrExplosions.splice(index, 1);
 		}
 		fill(color(255, 255, 0));
@@ -105,7 +118,7 @@ function Explosion(x, y)
 	//Detects collision between Explosion and EnemyMissile
 	this.collide = function(enemyMissile) {
 		if (collidePointCircle(enemyMissile.xPos, enemyMissile.yPos, this.xPos, this.yPos, this.size)) {
-			var index = arrEnemyMissiles.indexOf(enemyMissile);
+			const index = arrEnemyMissiles.indexOf(enemyMissile);
 			arrEnemyMissiles.splice(index, 1);
 		}
 	}
@@ -133,7 +146,7 @@ function MissileBattery(offset)
 	
 	this.fireMissile = function() {
 		if (this.arrMissiles.length > 0) {
-			var firedMissile = this.arrMissiles.pop();
+			const firedMissile = this.arrMissiles.pop();
 			firedMissile.setTarget(cursor.xPos, cursor.yPos);
 			arrFiredMissiles.push(firedMissile);
 		}
@@ -193,15 +206,7 @@ function Cursor(x, y)
 
 
 
-//Declare objects here to be used in different functions
-var arrEnemyMissiles = [];
-var arrUserMissiles = [];
-var arrFiredMissiles = [];
-var arrExplosions = [];
-var arrBases = [];
-var arrMissileBatteries = [];
-var cursor;
-var map;
+
 
 
 
@@ -228,6 +233,7 @@ function setup()
 	arrMissileBatteries.push(new MissileBattery(offset));
 	cursor = new Cursor(400, 300);
 	map = new Map();
+	missileController = new EnemyMissileController();
 }
 
 
@@ -294,16 +300,16 @@ function keyPressed() {
 
 //This function is checked every call of draw() for holding keypresses
 function checkKey() {
-	if (keyIsDown(LEFT_ARROW)) {
+	if (keyIsDown(LEFT_ARROW) && cursor.xPos > 10) {
 	  cursor.xPos -= cursorSpeed;
 	}
-	if (keyIsDown(RIGHT_ARROW)) {
+	if (keyIsDown(RIGHT_ARROW) && cursor.xPos < width-10) {
 	  cursor.xPos += cursorSpeed;
 	}
-	if (keyIsDown(UP_ARROW)) {
+	if (keyIsDown(UP_ARROW)&& cursor.yPos > 10) {
 	  cursor.yPos -= cursorSpeed;
 	}
-	if (keyIsDown(DOWN_ARROW)) {
+	if (keyIsDown(DOWN_ARROW) && cursor.yPos < height-100) {
 	  cursor.yPos += cursorSpeed;
 	}
 }
