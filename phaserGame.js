@@ -3,16 +3,11 @@ var config = {
     width: 800,
     height: 600,
     physics: {
-        default: 'impact',
-        impact: {
-            setBounds: {
-                x: 0,
-                y: 0,
-                width: 1600,
-                height: 1200,
-                thickness: 32
-            }
-        },
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 0 },
+        debug: true
+      }
     },
     scene: {
         preload: preload,
@@ -20,7 +15,7 @@ var config = {
         update: update,
         extend: {
                     player: null,
-                    // reticle: null,
+                    reticle: null,
                     moveKeys: null,
                     bullets: null,
                     lastFired: 0,
@@ -30,7 +25,6 @@ var config = {
 };
 
 var game = new Phaser.Game(config);
-var reticle;
 
 //Bullet class
 var Bullet = new Phaser.Class({
@@ -128,16 +122,17 @@ function create ()
     background.setDisplaySize(1600, 1200);
 
     //This group allows Bullet objects to be recycled
-    this.bullets = this.add.group({ classType: Bullet, runChildUpdate: true });
+    this.bullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
 
     //Create player sprite
-    player = this.impact.add.sprite(400, 300, 'player_handgun').setDepth(1);
+    player = this.physics.add.sprite(400, 300, 'player_handgun').setDepth(1);
     player.setOrigin(0.5, 0.5);
     player.setDisplaySize(132, 120);
-    player.setMaxVelocity(500).setFriction(2200, 2200).setPassive();
+    player.setDrag(2200, 2200);
+    // player.setMaxVelocity(500).setFriction(2200, 2200).setPassive();
 
     //Create reticle sprite
-    reticle = this.add.sprite(400, 300, 'target').setDepth(1);
+    reticle = this.physics.add.sprite(400, 300, 'target').setDepth(1);
     reticle.setOrigin(0.5, 0.5);
     reticle.setDisplaySize(25, 25);
     reticle.setScrollFactor(1, 1); //Makes reticle move with camera
@@ -242,12 +237,11 @@ function create ()
 
     }, this);
 
-    //Create bounds for reticle sprite
+    //Create bounds for sprites
+    // this.physics.world.setBounds(0, 0, 800 * 4, 600 * 4);
     // var spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), -100, -100);
 
 }
-
-
 
 function update (time, delta)
 {
