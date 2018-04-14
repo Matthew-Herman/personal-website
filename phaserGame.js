@@ -52,6 +52,7 @@ var Bullet = new Phaser.Class({
         this.setPosition(player.x, player.y);
 
         //Calculate trajectory of bullet so that it moves from player towards pointer
+        //Reimplement to use Phaser arcade physics and vector
         this.direction = Math.atan( (reticle.x-this.x) / (reticle.y-this.y));
 
         if (reticle.y > this.y)
@@ -121,6 +122,10 @@ function create ()
     background.setOrigin(0, 0);
     background.setDisplaySize(1600, 1200);
 
+    //Create bounds for sprites
+    this.physics.world.setBounds(0, 0, 1600, 1200);
+    var spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), -100, -100);
+
     //This group allows Bullet objects to be recycled
     this.bullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
 
@@ -128,17 +133,22 @@ function create ()
     player = this.physics.add.sprite(400, 300, 'player_handgun').setDepth(1);
     player.setOrigin(0.5, 0.5);
     player.setDisplaySize(132, 120);
-    player.setDrag(2200, 2200);
-    // player.setMaxVelocity(500).setFriction(2200, 2200).setPassive();
+    player.setDrag(1200, 1200);
+    player.setCollideWorldBounds(true);
+    // player.body.maxVelocity.x = 500; // Set max x velocity for player
+    // player.body.maxVelocity.y = 500; // Set max y velocity for player
 
     //Create reticle sprite
     reticle = this.physics.add.sprite(400, 300, 'target').setDepth(1);
     reticle.setOrigin(0.5, 0.5);
     reticle.setDisplaySize(25, 25);
     reticle.setScrollFactor(1, 1); //Makes reticle move with camera
+    reticle.setCollideWorldBounds(true);
 
     //Sets the bound for the camera and to follow reticle
     this.cameras.main.setBounds(0, 0, 1600, 1200);
+
+
 
     //Creates object for input with WASD kets
     moveKeys = this.input.keyboard.addKeys({
@@ -237,11 +247,30 @@ function create ()
 
     }, this);
 
-    //Create bounds for sprites
-    // this.physics.world.setBounds(0, 0, 800 * 4, 600 * 4);
-    // var spriteBounds = Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(this.physics.world.bounds), -100, -100);
-
 }
+
+// Alternatively to this, continually set sprite.body.maxVelocity in update
+// Ensures sprite speed doesnt exceed maxVelocity while update is called
+function constrainVelocity(sprite, maxVelocity)
+{
+    if (!sprite || !sprite.body) {
+      return;
+    }
+
+    var angle, currVelocitySqr, vx, vy;
+    vx = sprite.body.velocity.x;
+    vy = sprite.body.velocity.y;
+    currVelocitySqr = vx * vx + vy * vy;
+
+    if (currVelocitySqr > maxVelocity * maxVelocity) {
+        angle = Math.atan2(vy, vx);
+        vx = Math.cos(angle) * maxVelocity;
+        vy = Math.sin(angle) * maxVelocity;
+        sprite.body.velocity.x = vx;
+        sprite.body.velocity.y = vy;
+    }
+}
+
 
 function update (time, delta)
 {
@@ -255,6 +284,9 @@ function update (time, delta)
     // Sets camera scroll position to average between player and reticle
     this.cameras.main.scrollX = ((player.x+reticle.x)/2)-400;
     this.cameras.main.scrollY = ((player.y+reticle.y)/2)-300;
+
+    // Constrain velocity of player
+    constrainVelocity(player, 500);
 
     //Set camera zooms
     this.cameras.main.zoom = 0.7;
